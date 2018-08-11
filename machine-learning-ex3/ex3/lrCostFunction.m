@@ -36,15 +36,20 @@ grad = zeros(size(theta));
 %           grad = grad + YOUR_CODE_HERE (using the temp variable)
 %
 
+htheta = sigmoid(X*theta);
+grad = (1.0 / m) * X' * (htheta - y);
+temp = theta;
+temp(1) = 0;
+grad = grad + (lambda / m) * temp;
 
+ % J = -y' * log(htheta) - (1-y') * log(1 - htheta) + (lambda / (2 * m))*sum(theta.*theta);
+firstTerm = -y .* log(htheta);
+secondTerm = (1 - y) .* log(1 - htheta);
 
+tsq = temp .* temp;
+regularization = (lambda / (2 * m)) * sum(tsq);
 
-
-
-
-
-
-
+J = (1 / m) * sum(firstTerm - secondTerm) + regularization;
 % =============================================================
 
 grad = grad(:);

@@ -53,6 +53,12 @@ for i = 1:m
   z3 = a2 * Theta2';
   a3 = sigmoid(z3);
 
+  %backprop
+  d3 = a3 - yk';
+  d2 = (d3 * Theta2)(2:end) .* sigmoidGradient(z2);
+  Theta1_grad = Theta1_grad + (a1' * d2)';
+  Theta2_grad = Theta2_grad + (a2' * d3)';
+
   for k = 1:num_labels
     step_cost = -yk(k) * log(a3(k)) - (1 - yk(k)) * log(1 - a3(k));
     J = J + step_cost;
@@ -60,6 +66,26 @@ for i = 1:m
 end
 J = J / m;
 
+Theta1_regularization = (lambda / m) * Theta1;
+Theta1_regularization(:,1) = 0;
+Theta2_regularization = (lambda / m) * Theta2;
+Theta2_regularization(:,1) = 0;
+Theta1_grad = Theta1_grad / m + Theta1_regularization;
+Theta2_grad = Theta2_grad / m + Theta2_regularization;
+
+% Regularization
+theta1_without_bias = Theta1(:, 2:input_layer_size+1);
+theta1_elementwise_squared = theta1_without_bias .^ 2;
+regularization_first_term = sum(theta1_elementwise_squared(:));
+
+theta2_without_bias = Theta2(:, 2:hidden_layer_size+1);
+theta2_elementwise_squared = theta2_without_bias .^ 2;
+regularization_second_term = sum(theta2_elementwise_squared(:));
+
+regularization_term = (lambda / (2 * m)) * ...
+  (regularization_first_term + regularization_second_term);
+
+J = J + regularization_term;
 %
 % Part 2: Implement the backpropagation algorithm to compute the gradients
 %         Theta1_grad and Theta2_grad. You should return the partial derivatives of
